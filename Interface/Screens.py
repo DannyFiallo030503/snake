@@ -4,12 +4,12 @@ import pygame
 import sys
 import os
 from Interface.button_use import Button
-from Interface.text_button_use import TextInput,TextInput_text
+from Interface.text_button_use import TextInput, TextInput_text
 from Logic.map import largue_map, eggs_map, snake_character, max_points, obstacles
 from Logic.score import calculate_dist
 from Interface.show_map_use import show_map
 from Interface.scale_photos import scale_img
-from Logic.SNAKE_GRW_UP import body_snake_grow_up,snake_body_move,snake_body_move_array
+from Logic.SNAKE_GRW_UP import body_snake_grow_up, snake_body_move_array, choice_move
 from Logic.Save_load import save_maps,load_maps
 from Logic.map import random_map
 
@@ -335,14 +335,11 @@ def screen_game_play(map:list[list[int]],x:int,y:int,fps:int,pointmax,eggs_max):
     pixel_y=64
     move=None
     pixel_xy=64
-    max_pixels_x=18
-    max_pixel_y=14
     numb_xy=64
     score=0
     gen_grow_up_snake_count=0
-    pos_grow_up_x=0
-    pos_grow_up_y=0
     body=[0,0]
+    collition=True
 
     # cargando pixeles mapa
     pixel_x=1200//y
@@ -400,83 +397,24 @@ def screen_game_play(map:list[list[int]],x:int,y:int,fps:int,pointmax,eggs_max):
 
         # condicionales del movimiento para colicion y comer huevos
         count=1
-        if move==1:
-            # colicion tengo que cambiarlo para que vaya a otra pantalla    
-            if map[pos_snake_fila-1][pos_snake_columna]==-4 or map[pos_snake_fila-1][pos_snake_columna]==-2 or map[pos_snake_fila-1][pos_snake_columna]==-1:
-                End_screen(map,x,y,score,eggs_max,pointmax,fps)   
-            # condiccion de comer huevo y crecer
-            if map[pos_snake_fila-1][pos_snake_columna]>0:
-                gen_grow_up_snake_count+=map[pos_snake_fila-1][pos_snake_columna]
-                pos_grow_up_x=pos_snake_fila
-                pos_grow_up_y=pos_snake_columna
-                map[pos_snake_fila-1][pos_snake_columna]=-3
-                score+=calculate_dist(map,pos_snake_fila-1,pos_snake_columna)
-            # condicion de movimiento del cuerpo
-            map[pos_snake_fila-1][pos_snake_columna]=-3
-            map[pos_snake_fila][pos_snake_columna]=0
-            pos_snake_fila-=1
+        result=choice_move(map, pos_snake_fila, pos_snake_columna, move, gen_grow_up_snake_count, score, collition)
+        map, pos_snake_fila, pos_snake_columna, gen_grow_up_snake_count, score, collition = result
+        
 
-
-        elif move==2:
-            # colicion tengo que cambiarlo para que vaya a otra pantalla    
-            if map[pos_snake_fila+1][pos_snake_columna]==-4 or map[pos_snake_fila+1][pos_snake_columna]==-2 or map[pos_snake_fila+1][pos_snake_columna]==-1:
-                End_screen(map,x,y,score,eggs_max,pointmax,fps)
-            # condiccion de comer huevo y crecer
-            if  map[pos_snake_fila+1][pos_snake_columna]>0:
-                gen_grow_up_snake_count+=map[pos_snake_fila+1][pos_snake_columna]
-                pos_grow_up_x=pos_snake_fila
-                pos_grow_up_y=pos_snake_columna
-                gen_grow_up_snake_count+=map[pos_snake_fila+1][pos_snake_columna]
-                score+=calculate_dist(map,pos_snake_fila+1,pos_snake_columna)
-                # condicion de movimiento del cuerpo
-            map[pos_snake_fila+1][pos_snake_columna]=-3
-            map[pos_snake_fila][pos_snake_columna]=0
-            pos_snake_fila+=1
-
-        elif move==3:
-            # colicion tengo que cambiarlo para que vaya a otra pantalla
-            if map[pos_snake_fila][pos_snake_columna+1]==-4 or map[pos_snake_fila][pos_snake_columna+1]==-2 or map[pos_snake_fila][pos_snake_columna+1]==-1:
-                End_screen(map,x,y,score,eggs_max,pointmax,fps)
-            # condiccion de comer huevo y crecer
-            if map[pos_snake_fila][pos_snake_columna+1]>0:
-                gen_grow_up_snake_count+=map[pos_snake_fila][pos_snake_columna+1]
-                pos_grow_up_x=pos_snake_fila
-                pos_grow_up_y=pos_snake_columna
-                gen_grow_up_snake_count+=map[pos_snake_fila][pos_snake_columna+1]
-                score+=calculate_dist(map,pos_snake_fila,pos_snake_columna+1)
-                # condicion de movimiento del cuerpo
-            map[pos_snake_fila][pos_snake_columna+1]=-3
-            map[pos_snake_fila][pos_snake_columna]=0
-            pos_snake_columna+=1
-            
-        elif move==4:
-            # colicion tengo que cambiarlo para que vaya a otra pantalla
-            if map[pos_snake_fila][pos_snake_columna-1]==-4 or map[pos_snake_fila][pos_snake_columna-1]==-2 or map[pos_snake_fila][pos_snake_columna-1]==-1:
-                End_screen(map,x,y,score,eggs_max,pointmax,fps)
-            # condiccion de comer huevo y crecer
-            if map[pos_snake_fila][pos_snake_columna-1]>0:
-                gen_grow_up_snake_count+=map[pos_snake_fila][pos_snake_columna-1]
-                pos_grow_up_x=pos_snake_fila
-                pos_grow_up_y=pos_snake_columna
-                gen_grow_up_snake_count+=map[pos_snake_fila][pos_snake_columna-1]
-                score+=calculate_dist(map,pos_snake_fila-1,pos_snake_columna-1)
-                # condicion de movimiento del cuerpo
-            map[pos_snake_fila][pos_snake_columna-1]=-3
-            map[pos_snake_fila][pos_snake_columna]=0
-            pos_snake_columna-=1    
+        # colicion
+        if collition==False:
+            End_screen(map,x,y,score,eggs_max,pointmax,fps)
+         
                                                     
-        #print("gen_grow_up_snake_count= ",gen_grow_up_snake_count)
-
         # generar mas huevos en cuanto se acaben los que hay en el mapa
         count=0
         for ii in range(0,len(map)):
             for jj in range(0,len(map[ii])):
                 if map[ii][jj]>0:
-                    count+=1
-                    #print (count)
-                    #print(map)            
+                    count+=1            
         if count==0:
             map=eggs_map(map,x-1,y-1,eggs_max,pointmax)
+
             
         # generar cuerpo   
         if gen_grow_up_snake_count>0 and gen_grow_up_snake_count!=None:
@@ -486,17 +424,14 @@ def screen_game_play(map:list[list[int]],x:int,y:int,fps:int,pointmax,eggs_max):
 
         # mov cuerpo
         if move==1:
-            map,body=snake_body_move_array(map,body,pos_snake_fila+1,pos_snake_columna)
-            print("cuerpo w",body)
+            map,body=snake_body_move_array(map,body,pos_snake_fila,pos_snake_columna)
         elif move==2:
-            map,body=snake_body_move_array(map,body,pos_snake_fila-1,pos_snake_columna)
-            print("cuerpo s",body)  
+            map,body=snake_body_move_array(map,body,pos_snake_fila,pos_snake_columna) 
         elif move==3:
-            map,body=snake_body_move_array(map,body,pos_snake_fila,pos_snake_columna-1)
-            print("cuerpo d",body)
+            map,body=snake_body_move_array(map,body,pos_snake_fila,pos_snake_columna)
         elif move==4:
-            map,body=snake_body_move_array(map,body,pos_snake_fila,pos_snake_columna+1)
-            print("cuerpo a",body)    
+            map,body=snake_body_move_array(map,body,pos_snake_fila,pos_snake_columna)
+
 
         # esto hay que repararlo
         # condicional del tamaño maximo de las x,y
