@@ -51,11 +51,12 @@ class TextInput_text(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.font = pygame.font.SysFont(font_family, font_size)
-        self.font = pygame.font.SysFont(font_family, font_size)
+        self.text_color = (0, 0, 0)
         self.text = ""
         self.rendered_text = None
-        self.active = False
+        self.active = True  # Hacer que la entrada de texto esté activa desde el inicio
         self.allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
+        self.position = (x, y)
 
     def validate_key(self, key):
         valido = False
@@ -86,17 +87,16 @@ class TextInput_text(pygame.sprite.Sprite):
 
         rect = self.rendered_text.get_rect()
         rect.topleft = self.position
-        pygame.draw.rect(surface, self.bg_color, rect)
+        pygame.draw.rect(surface, self.image.get_at((0,0)), rect)
         surface.blit(self.rendered_text, self.position)
 
     def handle_event_txt(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            self.active = True
-        elif event.type == pygame.KEYDOWN and self.active:
+        if event.type == pygame.KEYDOWN and self.active:
             if event.key == pygame.K_RETURN:
                 self.active = False
+                return self.text
             elif event.key == pygame.K_ESCAPE:
                 self.active = False
                 self.text = ""
             elif self.validate_key(event.unicode):
-                self.add_text(event.unicode)        
+                self.add_text(event.unicode)    

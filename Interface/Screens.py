@@ -170,11 +170,10 @@ def Create_map(map,x,y,obst,cantMaxEggs,walls,maxPoint,FPSload):
 
     #buscar manera para que el direcctorio varie
     #cargando imagenes
-    os.chdir("C:/Users/danny_fiallo/Documents/!!!Programación/!!!Code/Snake/Photos")
-    walls=pygame.image.load("walls.jpg") 
-    head=pygame.image.load("head.png")
-    eggs=pygame.image.load("eggs.png")
-    obstacles_img=pygame.image.load("obstacles.png")
+    walls=pygame.image.load("Photos/walls.jpg") 
+    head=pygame.image.load("Photos/head.png")
+    eggs=pygame.image.load("Photos/eggs.png")
+    obstacles_img=pygame.image.load("Photos/obstacles.png")
     green_image = pygame.Surface((64, 64))
     numb = pygame.font.SysFont('Arial', 59)
     green_image.fill((0, 255, 0))
@@ -352,11 +351,11 @@ def screen_game_play(map:list[list[int]],x:int,y:int,fps:int,pointmax,eggs_max):
 
     # buscar via para cambiar rl directorio y que varie
     # cargando imagenes
-    os.chdir("C:/Users/danny_fiallo/Documents/!!!Programación/!!!Code/Snake/Photos")
-    walls=pygame.image.load("walls.jpg") 
-    head=pygame.image.load("head.png")
-    eggs=pygame.image.load("eggs.png")
-    obstacles_img=pygame.image.load("obstacles.png")
+    
+    walls=pygame.image.load("Photos/walls.jpg") 
+    head=pygame.image.load("Photos/head.png")
+    eggs=pygame.image.load("Photos/eggs.png")
+    obstacles_img=pygame.image.load("Photos/obstacles.png")
     green_image = pygame.Surface((64, 64))
     numb = pygame.font.SysFont('Arial', numb_xy)
     green_image.fill((0, 255, 0))
@@ -592,19 +591,21 @@ def Save_screen(map,x,y,score,obst,eggs,walls,points,fps,name):
     DISPLAY_END=pygame.display.set_mode((1200,900))
     pygame.display.set_caption("Snake egg-eater")
 
-    font = pygame.font.SysFont('Arial', 16)
+    font = pygame.font.SysFont('Arial', 25)
+
+    correct_name=None
 
     title= pygame.font.SysFont('Impact', 150)
     text= title.render("Save Game", True, (MEDIUM_GREEN))
 
 
-    button_save = Button(350, 500, 200, 50, (0,0,255), "Save map", (255, 255, 255), action=lambda: save_maps(map,x,y,1,eggs,1,points,fps,name)) # cambiar
+    button_save = Button(350, 500, 200, 50, (0,0,255), "Save map", (255, 255, 255), action=lambda: save_maps(map,x,y,1,eggs,1,points,fps,correct_name)) # cambiar
     button_create_map = Button(650, 500, 200, 50, (255,0,0), "Title", (255, 255, 255), action=lambda: main_screen())
-    name_map = TextInput_text(150, 60, 50, 30, (255, 255, 255), "Arial", 16)
+    name_map = TextInput_text(500, 600, 50, 30, (255, 255, 255), "Arial", 25)
 
     while True:
 
-        text_score = font.render(f'Score {score}', True, (255, 255, 255))
+        text_score = font.render('Write the name of the map, press enter, and then press the Save Map button to save it.', True, (255, 255, 255))
 
         DISPLAY_END.fill(RED_Tono_claro)
 
@@ -614,18 +615,20 @@ def Save_screen(map,x,y,score,obst,eggs,walls,points,fps,name):
                 pygame.quit()
                 sys.exit()
 
-            if name!=None:
+            if correct_name!=None:
                 button_save.handle_event(event)
             button_create_map.handle_event(event)
-            name=name_map.handle_event_txt(text)
+            name=name_map.handle_event_txt(event)
 
+            if name!=None:
+                correct_name=name
 
         button_save.draw(DISPLAY_END,font)
         button_create_map.draw(DISPLAY_END,font)
-        name_map.draw_txt(DISPLAY_END,font)   
+        name_map.draw_txt(DISPLAY_END) 
 
         text_rect = text_score.get_rect()
-        text_rect.topleft = (500, 380)
+        text_rect.topleft = (200, 380)
         DISPLAY_END.blit(text_score, text_rect)
 
         text_rect = text.get_rect()
