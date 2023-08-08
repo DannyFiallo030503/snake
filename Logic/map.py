@@ -80,11 +80,15 @@ def snake_character(map:list[list[int]], x:int, y:int):
     return map
 
 # genera el mapa completo de manera aleatoria
-def random_map():
+def random_map(tipe_map: bool):
     x_rand=random.randint(6,100)
     y_rand=random.randint(6,100)
-    map=largue_map(x_rand,y_rand)
-    map=snake_character(map,x_rand,y_rand)
+    if tipe_map == True:
+        map=largue_map(x_rand,y_rand)
+        map=snake_character(map,x_rand,y_rand)
+    if tipe_map == False:
+        map=large_map_no_wall(x_rand,y_rand)
+        map=snake_character(map,x_rand,y_rand)    
 
 
     if x_rand>y_rand:
@@ -115,3 +119,14 @@ def random_map():
         fps_rand=random.randint(1,((20*x_rand)//100))
 
     return (map,x_rand,y_rand,fps_rand,points_rand,eggs_rand)        
+
+def large_map_no_wall ( x: int, y: int ) -> list[list[int]]:
+
+    map = []
+
+    for i in range ( 0, x ):
+        map.append([])
+        for j in range ( 0, y ):
+            map[i].append(0)
+
+    return map        

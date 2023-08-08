@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "vscjava.vscode-java-test",
+        "redhat.java",
+        "vscjava.vscode-gradle",
+        "esbenp.prettier-vscode",
+        "naumovs.color-highlight",
+        "oderwat.indent-rainbow",
+        "dzhavat.bracket-pair-toggler"
+    ]
+}

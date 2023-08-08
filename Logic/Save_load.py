@@ -51,4 +51,3 @@ def load_maps(name):
 
         return map,x,y,obst,eggs,walls,points,fps    
 
-

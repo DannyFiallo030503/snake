@@ -1,11 +1,12 @@
 # pylint: disable=no-member
 # pylint: disable=all
+
 import pygame
-import sys
 import os
+import sys
 from Interface.button_use import Button
 from Interface.text_button_use import TextInput, TextInput_text
-from Logic.map import largue_map, eggs_map, snake_character, max_points, obstacles
+from Logic.map import largue_map, eggs_map, snake_character, max_points, obstacles, large_map_no_wall
 from Logic.score import calculate_dist
 from Interface.show_map_use import show_map
 from Interface.scale_photos import scale_img
@@ -75,9 +76,9 @@ def main_screen():
     text= title.render("Snake egg-eater", True, (MEDIUM_GREEN))
 
     #botones de accion para cambios de pantalla
-    button1 = Button(390, 400, 400, 100, (RED), "Create map", (255, 255, 255), action=lambda: Create_map(map,None,None,None,None,None,None,None))
-    button2 = Button(390, 550, 400, 100, (LIGHT_GREEN), "Create random map", (255, 255, 255), action=lambda: random_map())  # revisar cual es el error
-    button3 = Button(390, 700, 400, 100, (BLUE), "load map", (255, 255, 255), action=lambda: load_screen())
+    button1 = Button(390, 400, 400, 100, (RED), "Create map", (255, 255, 255), action=lambda: choise_wall_mode_create(map,None,None,None,None,None,None,None))
+    button2 = Button(390, 550, 400, 100, (LIGHT_GREEN), "Create random map", (255, 255, 255), action=lambda: choise_wall_mode_random(map,None,None,None,None,None,None,None))  # revisar cual es el error
+    button3 = Button(390, 700, 400, 100, (BLUE), "load map", (255, 255, 255), action=lambda: load_screen_new())
 
     #inicio del juego o mejor dicho del bucle infinito qque esperara a que preciones los botones
     while True:
@@ -111,9 +112,98 @@ def main_screen():
 
         pygame.display.flip() 
 
+# pantala de decicion de juego de borde o sin borde de creacion
+def choise_wall_mode_create (map,x,y,obst,cantMaxEggs,walls,maxPoint,FPSload):
+
+    pygame.init()
+
+    display_choise=pygame.display.set_mode((1200,900))
+
+    pygame.display.set_caption("Snake egg-eater")
+
+    fontd = pygame.font.Font(None, 50)
+
+    # titulo que explica la seleccion de sin pared o con pared
+    title = pygame.font.SysFont('Impact', 40)
+    text= title.render("Select the type of map without borders and with borders", True, (MEDIUM_GREEN))
+
+    # botones 
+    button1 = Button(390, 400, 400, 100, (RED), "Map without borders", (255, 255, 255), action=lambda: Create_map(map,None,None,None,None,None,None,None,False))
+    button2 = Button(390, 550, 400, 100, (RED), "Map with borders", (255, 255, 255), action=lambda: Create_map(map,None,None,None,None,None,None,None,True))
+
+    # inicio del bucle
+    while (True):
+
+        display_choise.fill(ORANGE_Tono_claro)
+
+        #terminaccion del juego
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            button1.handle_event(event)
+            button2.handle_event(event)
+
+        #dibujar botones
+        button1.draw(display_choise,fontd)
+        button2.draw(display_choise,fontd)
+
+        #dibuja el titulo
+        text_rect = text.get_rect()
+        text_rect.x = 40
+        text_rect.y = 150
+        display_choise.blit(text,text_rect)
+
+        pygame.display.flip()
+
+# pantala de decicion de juego de borde o sin borde de random
+def choise_wall_mode_random (map,x,y,obst,cantMaxEggs,walls,maxPoint,FPSload):
+
+    pygame.init()
+
+    display_choise=pygame.display.set_mode((1200,900))
+
+    pygame.display.set_caption("Snake egg-eater")
+
+    fontd = pygame.font.Font(None, 40)
+
+    # titulo que explica la seleccion de sin pared o con pared
+    title = pygame.font.SysFont('Impact', 50)
+    text= title.render("Select the type of map without borders and with borders", True, (MEDIUM_GREEN))
+
+    # botones 
+    button1 = Button(390, 400, 400, 100, (RED), "Map without borders", (255, 255, 255), action=lambda: random_choise(False))
+    button2 = Button(390, 550, 400, 100, (RED), "Map with borders", (255, 255, 255), action=lambda: random_choise(True))
+
+    # inicio del bucle
+    while (True):
+
+        display_choise.fill(ORANGE_Tono_claro)
+
+        #terminaccion del juego
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            button1.handle_event(event)
+            button2.handle_event(event)
+
+        #dibujar botones
+        button1.draw(display_choise,fontd)
+        button2.draw(display_choise,fontd)
+
+        #dibuja el titulo
+        text_rect = text.get_rect()
+        text_rect.x = 40
+        text_rect.y = 150
+        display_choise.blit(text,text_rect)
+
+        pygame.display.flip()                  
 
 # Pantalla de creaccion de mapa
-def Create_map(map,x,y,obst,cantMaxEggs,walls,maxPoint,FPSload):
+def Create_map(map,x,y,obst,cantMaxEggs,walls,maxPoint,FPSload,tipe_map):
 
     DISPLAY_CREATE_MAP=pygame.display.set_mode((1200,900))
     pygame.display.set_caption("Snake egg-eater")
@@ -143,6 +233,8 @@ def Create_map(map,x,y,obst,cantMaxEggs,walls,maxPoint,FPSload):
     pixel_y=0
     pixel_xy=0
 
+
+
     # titulo de las entradas de texto
     l_m=pygame.font.SysFont('Impact', 30)
     text_l_m=l_m.render("Large map",True,(RED_Tono_claro))
@@ -156,7 +248,7 @@ def Create_map(map,x,y,obst,cantMaxEggs,walls,maxPoint,FPSload):
     text_f_p_s=f_p_s.render("Speed snake",True,(RED_Tono_claro))
 
     #llamada a las clases que se encargan de la creaccion de entrada de datos y botones
-    button1 = Button(170, 830, 100, 50, (RED), "Back", (255, 255, 255), action=lambda: screen_game_play(map,x,y,FPSload,correct_PointMax,correct_EggsMax)) # arreglar debe llamar a la pantalla de inicio
+    button1 = Button(170, 830, 100, 50, (RED), "Back", (255, 255, 255), action=lambda: main_screen()) 
     large_fila_box=TextInput(150, 60, 50, 30)
     large_columna_box=TextInput(90, 60, 50, 30)
     obst_box=TextInput(118,150,50,30)
@@ -223,11 +315,16 @@ def Create_map(map,x,y,obst,cantMaxEggs,walls,maxPoint,FPSload):
                         y=int(columna)
                         columna=None
                         count_large_map=0    
-                    if (x and y)!=None:
+                    if (x and y)!=None and tipe_map == True:
                         if (x and y)>4:
                             map=largue_map(x,y)
                             count_large_map=1
                             count_gen_snake=1
+                    if (x and y)!=None and tipe_map == False:
+                        if (x and y)>4:
+                            map=large_map_no_wall(x,y)
+                            count_large_map=1
+                            count_gen_snake=1        
 
                 #condicionales para la entrada de texto de obstaculos
                 if count_obst==0 or obst!=None:
@@ -307,18 +404,19 @@ def Create_map(map,x,y,obst,cantMaxEggs,walls,maxPoint,FPSload):
         save_map_button.draw(DISPLAY_CREATE_MAP,fontd)
         random_mode_button.draw(DISPLAY_CREATE_MAP, fontd)
         start_button.draw(DISPLAY_CREATE_MAP, fontd)
-        print(map)
-        print()
+
         pygame.display.flip()
         clock.tick(FPS)
 
-
+#pantalla de juego
 def screen_game_play(map:list[list[int]],x:int,y:int,fps:int,pointmax,eggs_max):
 
     DISPLAY_PLAY=pygame.display.set_mode((1200,900))
     pygame.display.set_caption("Snake egg-eater")
 
     font = pygame.font.SysFont('Arial', 24)
+
+    new_map = [i[:] for i in map]
 
     # velosidad de la serpiente
     clock = pygame.time.Clock()
@@ -402,7 +500,7 @@ def screen_game_play(map:list[list[int]],x:int,y:int,fps:int,pointmax,eggs_max):
 
         # colicion
         if collition==False:
-            End_screen(map,x,y,score,eggs_max,pointmax,fps)
+            End_screen(new_map,x,y,score,eggs_max,pointmax,fps)
          
                                                     
         # generar mas huevos en cuanto se acaben los que hay en el mapa
@@ -529,6 +627,172 @@ def load_screen():
 
         pygame.display.flip()    
 
+# pantalla de carga de mapas pero con ajustes hacia los lados
+def load_screen_new():
+    SCREEN_WIDTH = 1200
+    SCREEN_HEIGHT = 900
+    BG_COLOR = YELLOW_Tono_claro
+
+    grid_x=300
+    grid_y=0
+    pixel_xy=0
+    map=[]
+    scaled_walls = None
+    scaled_head=None
+    scaled_eggs=None
+    scaled_obstacles_img=None
+    scaled_green_image=None
+    scaled_numbscale_img=None
+    name = ''
+
+    #cargando imagenes
+    walls_img=pygame.image.load("Photos/walls.jpg") 
+    head_img=pygame.image.load("Photos/head.png")
+    eggs_img=pygame.image.load("Photos/eggs.png")
+    obstacles_img=pygame.image.load("Photos/obstacles.png")
+    green_image = pygame.Surface((64, 64))
+    numb = pygame.font.SysFont('Arial', 59)
+    green_image.fill((0, 255, 0))
+
+    # Configuración de la fuente
+    FONT_SIZE = 24
+    FONT_COLOR = (255, 0, 0)
+    FONT_NAME = pygame.font.match_font('arial')
+
+    # Obtener la lista de archivos .txt en la carpeta
+    folder_path = "C:/Games/Snake/Saves"
+    txt_files = [f for f in os.listdir(folder_path) if f.endswith('.txt')]
+
+    # Configurar la pantalla de pygame
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Mostrar datos de archivos .txt")
+    font = pygame.font.Font(FONT_NAME, FONT_SIZE)
+
+    # Función para mostrar los datos del archivo
+    def show_txt_data(file_name):
+        nombre_base, extension = os.path.splitext(file_name)
+        nombre_sin_extension = nombre_base
+
+        map,x,y,obst,eggs,walls,points,fps=load_maps(nombre_sin_extension)
+
+        l_m=pygame.font.SysFont('Impact', 30)
+        text_x=l_m.render("x = ",True,(RED_Tono_claro))
+        text_x_xy=text_x.get_rect()
+        text_x_xy.x=20
+        text_x_xy.y=20
+        screen.blit(text_x,text_x_xy)
+        text_x_l=l_m.render(str(x),True,(RED_Tono_claro))
+        text_x_l_xy=text_x_l.get_rect()
+        text_x_l_xy.x=60
+        text_x_l_xy.y=20
+        screen.blit(text_x_l,text_x_l_xy)
+        text_y=l_m.render("y = ",True,(RED_Tono_claro))
+        text_y_xy=text_y.get_rect()
+        text_y_xy.x=20
+        text_y_xy.y=50
+        screen.blit(text_y,text_y_xy)
+        text_y_l=l_m.render(str(y),True,(RED_Tono_claro))
+        text_y_l_xy=text_y_l.get_rect()
+        text_y_l_xy.x=60
+        text_y_l_xy.y=50
+        screen.blit(text_y_l,text_y_l_xy)
+        text_obst=l_m.render("obst = ",True,(RED_Tono_claro))
+        text_obst_xy=text_obst.get_rect()
+        text_obst_xy.x=20
+        text_obst_xy.y=80
+        screen.blit(text_obst,text_obst_xy)
+        text_obst_l=l_m.render(str(obst),True,(RED_Tono_claro))
+        text_obst_l_xy=text_obst_l.get_rect()
+        text_obst_l_xy.x=110
+        text_obst_l_xy.y=80
+        screen.blit(text_obst_l,text_obst_l_xy)
+        text_eggs=l_m.render("eggs = ",True,(RED_Tono_claro))
+        text_eggs_xy=text_eggs.get_rect()
+        text_eggs_xy.x=20
+        text_eggs_xy.y=110
+        screen.blit(text_eggs,text_eggs_xy)
+        text_eggs_l=l_m.render(str(eggs),True,(RED_Tono_claro))
+        text_eggs_l_xy=text_eggs_l.get_rect()
+        text_eggs_l_xy.x=120
+        text_eggs_l_xy.y=110
+        screen.blit(text_eggs_l,text_eggs_l_xy)
+        text_points=l_m.render("points = ",True,(RED_Tono_claro))
+        text_points_xy=text_points.get_rect()
+        text_points_xy.x=20
+        text_points_xy.y=140
+        screen.blit(text_points,text_points_xy)
+        text_points_l=l_m.render(str(points),True,(RED_Tono_claro))
+        text_points_l_xy=text_points_l.get_rect()
+        text_points_l_xy.x=130
+        text_points_l_xy.y=140
+        screen.blit(text_points_l,text_points_l_xy)
+        text_fps=l_m.render("fps = ",True,(RED_Tono_claro))
+        text_fps_xy=text_fps.get_rect()
+        text_fps_xy.x=20
+        text_fps_xy.y=170
+        screen.blit(text_fps,text_fps_xy)
+        text_fps_l=l_m.render(str(fps),True,(RED_Tono_claro))
+        text_fps_l_xy=text_fps_l.get_rect()
+        text_fps_l_xy.x=100
+        text_fps_l_xy.y=170
+        screen.blit(text_fps_l,text_fps_l_xy)
+        
+
+        return map,x,y,obst,eggs,walls,points,fps,nombre_base
+
+    # Índice del archivo actualmente mostrado
+    current_file_index = 0
+    # show_txt_data(txt_files[current_file_index])
+    
+    # Bucle principal
+    running = True
+    while running:
+
+        start_button=Button(25, 830, 100, 50, (RED), str(name), (255, 255, 255), action=lambda: screen_game_play(map,x,y,fps,points,eggs))
+        back_button = Button(170, 830, 100, 50, (RED), "Back", (255, 255, 255), action=lambda: main_screen()) 
+
+        screen.fill(BG_COLOR)
+
+        for event in pygame.event.get():
+            # salida del bucle
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                # Al presionar la flecha derecha, mostrar el siguiente archivo
+                if event.key == pygame.K_RIGHT:
+                    current_file_index += 1
+                    if current_file_index >= len(txt_files):
+                        current_file_index = 0
+                    map,x,y,obst,eggs,walls,points,fps,name=show_txt_data(txt_files[current_file_index])
+                    
+                # Al presionar la flecha izquierda, mostrar el archivo anterior
+                elif event.key == pygame.K_LEFT:
+                    current_file_index -= 1
+                    if current_file_index < 0:
+                        current_file_index = len(txt_files) - 1
+                    map,x,y,obst,eggs,walls,points,fps,name=show_txt_data(txt_files[current_file_index])
+                    
+            start_button.handle_event(event) 
+            back_button.handle_event(event)  
+
+        if map != None:
+            map,x,y,obst,eggs,walls,points,fps,name=show_txt_data(txt_files[current_file_index])
+            if (x and y)!=None:
+                pixel_x=900//y
+                pixel_y=900//x
+            if pixel_x>=pixel_y:
+                pixel_xy=pixel_y
+            else:
+                pixel_xy=pixel_x
+            scaled_walls,scaled_head,scaled_eggs,scaled_obstacles_img,scaled_green_image,scaled_numbscale_img=scale_img(pixel_xy,pixel_xy,walls_img,head_img,eggs_img,obstacles_img,green_image,numb)
+            show_map(map,screen,scaled_walls,scaled_head,scaled_eggs,scaled_obstacles_img,scaled_green_image,grid_x,pixel_xy,grid_y,scaled_numbscale_img)
+
+        start_button.draw(screen,font) 
+        back_button.draw(screen,font)
+        
+        pygame.display.flip()
 
 # pantalla de juego perdido
 def End_screen(map,x,y,score,eggs,points,fps):
@@ -580,7 +844,7 @@ def End_screen(map,x,y,score,eggs,points,fps):
 
         pygame.display.flip()
 
-
+# pantalla de salva
 def Save_screen(map,x,y,score,obst,eggs,walls,points,fps,name):
 
     pygame.init()
@@ -637,3 +901,9 @@ def Save_screen(map,x,y,score,obst,eggs,walls,points,fps,name):
         DISPLAY_END.blit(text, text_rect)
 
         pygame.display.flip()
+
+def random_choise (tipe_map: bool):
+
+    map,x_rand,y_rand,fps_rand,points_rand,eggs_rand=random_map (tipe_map)
+    screen_game_play(map,x_rand,y_rand,fps_rand,points_rand,eggs_rand)
+
